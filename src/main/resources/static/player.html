@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Filme Sync</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    video { width: 80%; max-width: 800px; margin-bottom: 20px; }
+    #aviso { font-size: 20px; color: red; display: none; }
+  </style>
+</head>
+<body>
+<h1>Filme Sync 🎬</h1>
+
+<div id="aviso">Clique no vídeo para ativar o som</div>
+
+<video id="video" muted controls>
+  <source src="/videos/0.mp4" type="video/mp4">
+  O seu navegador não suporta vídeo HTML5.
+</video>
+
+<br>
+<button onclick="playFilme()">▶ Play</button>
+<button onclick="enviarComando('pause')">⏸ Pause</button>
+
+<script>
+  const video = document.getElementById("video");
+  let isSyncing = false;
+  let ultimoComandoRecebido = null;
+
+  const socket = new SockJS("/ws-sync");
+  const stompClient = Stomp.over(socket);
+
+  stompClient.connect({}, () => {
+    stompClient.subscribe("/sync/acoes", (mensagem) => {
+      const data = JSON.parse(mensagem.body);
+
+      if (video.readyState >= 3) {
+        aplicarComando(data);
+      } else {
+        // Guardar o comando e tentar aplicá-lo periodicamente
+        ultimoComandoRecebido = data;
+        tentarAplicarComandoQuandoPronto();
+      }
+    });
+  });
+
+  function tentarAplicarComandoQuandoPronto() {
+    const tentativa = setInterval(() => {
+      if (ultimoComandoRecebido && video.readyState >= 3) {
+        aplicarComando(ultimoComandoRecebido);
+        ultimoComandoRecebido = null;
+        clearInterval(tentativa);
+      }
+    }, 300); // Tenta a cada 300ms até funcionar
+  }
+
+  function aplicarComando(data) {
+    isSyncing = true;
+
+    if (data.comando === "seek") video.currentTime = data.tempo;
+    if (data.comando === "play") video.play().catch(err => {
+      console.warn("Erro ao tentar dar play:", err);
+    });
+    if (data.comando === "pause") video.pause();
+
+    setTimeout(() => isSyncing = false, 500);
+  }
+
+  function enviarComando(comando) {
+    if (!stompClient || !stompClient.connected) return;
+    const payload = {
+      comando: comando,
+      tempo: video.currentTime
+    };
+    stompClient.send("/app/controlar", {}, JSON.stringify(payload));
+  }
+
+  // Função para iniciar o vídeo
+  function playFilme() {
+    if (!isSyncing) {
+      video.play().then(() => {
+        enviarComando("play");
+      }).catch(err => {
+        console.error("Erro ao tentar dar play:", err);
+      });
+    }
+  }
+
+  video.addEventListener("pause", () => {
+    if (!isSyncing) enviarComando("pause");
+  });
+
+  video.addEventListener("seeked", () => {
+    if (!isSyncing) enviarComando("seek");
+  });
+
+  video.addEventListener("click", () => {
+    video.muted = false; // Ativa o som quando o utilizador clicar
+    document.getElementById("aviso").style.display = "none"; // Esconde o aviso
+  });
+</script>
+</body>
+</html>

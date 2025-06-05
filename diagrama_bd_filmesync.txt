@@ -1,0 +1,18 @@
++-------------------+        +----------------------+
+|     Usuario       |        |    HistoricoFilme    |
++-------------------+        +----------------------+
+| id (PK)           |        | id (PK)              |
+| username          |        | caminhoFilme         |
+| password          |        | nomeFilme            |
+| admin             |        | dataVisualizacao     |
++-------------------+        | posterUrl            |
+                             +----------------------+
+
+Relacionamentos:
+- Não há relacionamento direto entre as tabelas no modelo atual.
+- Cada HistoricoFilme é independente e não está vinculado a um usuário específico.
+
+Observações:
+- A tabela Usuario armazena as credenciais e permissões dos usuários.
+- A tabela HistoricoFilme armazena o histórico de filmes assistidos, sem referência ao usuário que assistiu.
+- Possível melhoria futura: adicionar uma coluna usuario_id (FK) na tabela HistoricoFilme para rastrear qual usuário assistiu a cada filme.

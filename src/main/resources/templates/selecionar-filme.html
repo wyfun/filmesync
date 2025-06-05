@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Selecionar Filme</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffcc00;
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        li {
+            margin-bottom: 20px;
+            width: 200px;
+            text-align: center;
+        }
+        .filme-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .poster {
+            width: 180px;
+            height: 270px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        .poster:hover {
+            transform: scale(1.05);
+        }
+        button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 8px;
+            width: 100%;
+            max-width: 180px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        button:hover {
+            background-color: #666;
+        }
+        .filme-nome {
+            font-size: 14px;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .nav-bar {
+            background-color: #333;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #444;
+        }
+
+        .nav-link.active {
+            background-color: #ffcc00;
+            color: #333;
+        }
+
+        .player-link {
+            background-color: #2a6496;
+        }
+
+        .player-link:hover {
+            background-color: #1e496e;
+        }
+
+        .logged-user-display {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            background-color: #444;
+            padding: 5px 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .logged-as {
+            margin-right: 5px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .username {
+            font-weight: bold;
+            margin-right: 8px;
+            color: #ffcc00;
+        }
+
+        .admin-badge {
+            background-color: #ffcc00;
+            color: #333;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .logout-link {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #ff4444;
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-left: 10px;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .logout-link:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+
+        .user-icon {
+            margin-right: 5px;
+        }
+
+        .erro-mensagem, .sem-filmes {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .erro-mensagem {
+            border-left: 5px solid #ff4444;
+        }
+
+        .sem-filmes {
+            border-left: 5px solid #ffcc00;
+        }
+
+        .erro-mensagem p, .sem-filmes p {
+            margin: 10px 0;
+        }
+
+        .erro-mensagem p:first-child {
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        .instrucoes {
+            text-align: left;
+            margin: 15px auto;
+            max-width: 500px;
+            background-color: #444;
+            padding: 15px 15px 15px 40px;
+            border-radius: 5px;
+        }
+
+        .instrucoes li {
+            margin-bottom: 10px;
+        }
+
+        .instrucoes code {
+            background-color: #333;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #ffcc00;
+        }
+
+        .admin-info {
+            background-color: #2a6496;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-success {
+            background-color: #28a745;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-info p, .admin-success p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .info-icon, .success-icon {
+            font-size: 20px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .admin-only {
+            background-color: #444;
+            color: #aaa;
+            padding: 8px 16px;
+            border-radius: 5px;
+            margin-top: 8px;
+            text-align: center;
+            width: 100%;
+            max-width: 180px;
+        }
+
+        .admin-only-text {
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .disabled-button {
+            background-color: #666;
+            color: #ddd;
+            cursor: not-allowed;
+            opacity: 0.7;
+            width: 100%;
+            max-width: 180px;
+        }
+
+        .disabled-button:hover {
+            background-color: #666;
+        }
+
+        .admin-button {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            width: 100%;
+            max-width: 180px;
+        }
+
+        .admin-button:hover {
+            background-color: #218838;
+        }
+
+        /* Estilos para o modal de definições */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #333;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            color: white;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #ffcc00;
+        }
+
+        #modal-titulo {
+            color: #ffcc00;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #444;
+            color: white;
+            font-size: 16px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-salvar {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .btn-salvar:hover {
+            background-color: #218838;
+        }
+
+        .btn-cancelar {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #5a6268;
+        }
+
+        /* Cursor de ponteiro para os posters */
+        .poster {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .poster:hover {
+            transform: scale(1.05);
+        }
+
+        /* Estilos para os controles de filtragem */
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .filtro-container {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .filtro-form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .filtro-grupo label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .filtro-grupo select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #444;
+            color: white;
+        }
+
+        .limpar-filtros {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+            margin-top: 24px;
+        }
+
+        .limpar-filtros:hover {
+            background-color: #5a6268;
+        }
+
+        /* Exibir o gênero do filme na lista */
+        .filme-genero-tag {
+            display: inline-block;
+            background-color: #ffcc00;
+            color: #333;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="nav-bar">
+    <div class="nav-left">
+        <a href="/selecionar-filme" class="nav-link active">Selecionar Filme</a>
+        <a href="/historico" class="nav-link">📅 Histórico</a>
+        <a href="/player" class="nav-link player-link">🎬 Ir para Player</a>
+        <div class="logged-user-display">
+            <span class="user-icon">👤</span>
+            <span class="logged-as">Logado como: </span>
+            <span class="username" th:text="${isLogado ? nomeUsuario : 'Visitante'}">username</span>
+            <span class="admin-badge" th:if="${isAdmin && nomeUsuario != 'admin'}">Admin</span>
+        </div>
+    </div>
+    <div class="nav-right">
+        <a href="/logout" class="logout-link">🚪 Sair</a>
+    </div>
+</div>
+
+<div class="header-container">
+    <h1>Selecionar Filme</h1>
+
+    <!-- Controles de filtragem e ordenação -->
+    <div class="filtro-container">
+        <form id="filtroForm" action="/selecionar-filme" method="get" class="filtro-form">
+            <div class="filtro-grupo">
+                <label for="genero">Filtrar por Gênero:</label>
+                <select id="genero" name="genero" onchange="this.form.submit()">
+                    <option value="">Todos os Gêneros</option>
+                    <option value="sem-genero" th:selected="${generoSelecionado == 'sem-genero'}">Sem Gênero</option>
+                    <option th:each="genero : ${generosDisponiveis}"
+                            th:value="${genero}"
+                            th:text="${genero}"
+                            th:selected="${genero == generoSelecionado}">Ação</option>
+                </select>
+            </div>
+
+            <div class="filtro-grupo">
+                <label for="ordenarPor">Ordenar por:</label>
+                <select id="ordenarPor" name="ordenarPor" onchange="this.form.submit()">
+                    <option value="nome" th:selected="${ordenarPor == 'nome'}">Nome</option>
+                    <option value="genero" th:selected="${ordenarPor == 'genero'}">Gênero</option>
+                </select>
+            </div>
+
+            <button type="button" class="limpar-filtros" onclick="limparFiltros()">Limpar Filtros</button>
+        </form>
+    </div>
+</div>
+
+<!-- Exibe mensagem de erro se houver -->
+<div th:if="${erro != null}" class="erro-mensagem">
+    <p th:text="${erro}">Mensagem de erro</p>
+    <p>Verifique se a pasta 'static/videos' existe e contém arquivos .mp4.</p>
+</div>
+
+<!-- Exibe mensagem se não houver filmes -->
+<div th:if="${filmes.isEmpty() && erro == null}" class="sem-filmes">
+    <p>Nenhum filme encontrado.</p>
+    <p>Para adicionar filmes, siga estas instruções:</p>
+    <ol class="instrucoes">
+        <li>Crie a pasta <code>src/main/resources/static/videos</code> se ela não existir</li>
+        <li>Adicione seus arquivos .mp4 a esta pasta</li>
+        <li>Reinicie a aplicação se necessário</li>
+    </ol>
+</div>
+
+<!-- Mensagem para usuários não-admin -->
+<div th:if="${!filmes.isEmpty() && !isAdmin}" class="admin-info">
+    <p><span class="info-icon">ℹ️</span> Apenas administradores podem selecionar filmes. Você pode assistir aos filmes que um administrador selecionar.</p>
+</div>
+
+<!-- Mensagem para administradores -->
+<div th:if="${!filmes.isEmpty() && isAdmin}" class="admin-success">
+    <p><span class="success-icon">✅</span> Você está logado como administrador e pode selecionar qualquer filme.</p>
+</div>
+
+<!-- Lista de filmes -->
+<ul th:if="${!filmes.isEmpty()}">
+    <th:block th:each="filme : ${filmes}">
+        <li>
+            <div class="filme-container">
+                <!-- Exibe o poster do filme da API do IMDb ou o placeholder -->
+                <img class="poster" th:src="${posterUrls.get(filme) != null ? posterUrls.get(filme) : imagemPlaceholder}"
+                     alt="Poster do filme"
+                     th:data-nome="${filme.substring(filme.lastIndexOf('/') + 1).replace('.mp4', '')}"
+                     onclick="abrirModalDefinicoes(this)" />
+                <div class="filme-nome" th:text="${filme.substring(filme.lastIndexOf('/') + 1).replace('.mp4', '')}">Nome do Filme</div>
+                <!-- Exibe o gênero do filme, se existir -->
+                <div class="filme-genero-tag" th:if="${generosFilmes.get(filme) != null}" th:text="${generosFilmes.get(filme)}">Ação</div>
+                <!-- Botão para administradores -->
+                <form th:if="${isAdmin}" action="/selecionar-filme" method="post">
+                    <input type="hidden" name="caminho" th:value="${filme}" />
+                    <button type="submit" class="admin-button">Selecionar</button>
+                </form>
+
+                <!-- Botão desabilitado para usuários não-admin -->
+                <div th:unless="${isAdmin}">
+                    <button type="button" class="disabled-button"
+                            onclick="alert('Apenas administradores podem selecionar filmes.')">
+                        Apenas Admin
+                    </button>
+                </div>
+            </div>
+        </li>
+    </th:block>
+</ul>
+<!-- Modal de Definições -->
+<div id="definicoesModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2 id="modal-titulo">Definições do Filme</h2>
+        <div class="modal-body">
+            <input type="hidden" id="modal-nome-filme">
+
+            <div class="form-group">
+                <label for="genero">Gênero:</label>
+                <select id="genero" class="form-control">
+                    <option value="">Selecione um gênero</option>
+                    <option value="Ação">Ação</option>
+                    <option value="Aventura">Aventura</option>
+                    <option value="Comédia">Comédia</option>
+                    <option value="Documentário">Documentário</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Ficção Científica">Ficção Científica</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Suspense">Suspense</option>
+                    <option value="Terror">Terror</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button id="salvar-definicoes" class="btn-salvar">Salvar</button>
+                <button id="cancelar-definicoes" class="btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Função para abrir o modal de definições
+    function abrirModalDefinicoes(elemento) {
+        const nomeFilme = elemento.getAttribute('data-nome');
+        document.getElementById('modal-titulo').textContent = 'Definições: ' + nomeFilme;
+        document.getElementById('modal-nome-filme').value = nomeFilme;
+
+        // Buscar o gênero atual do filme, se existir
+        $.ajax({
+            url: '/api/genero/obter',
+            type: 'GET',
+            data: { nomeFilme: nomeFilme },
+            success: function(response) {
+                if (response.sucesso && response.genero) {
+                    document.getElementById('genero').value = response.genero;
+                } else {
+                    document.getElementById('genero').value = '';
+                }
+
+                // Mostrar o modal
+                document.getElementById('definicoesModal').style.display = 'block';
+            },
+            error: function() {
+                document.getElementById('genero').value = '';
+                document.getElementById('definicoesModal').style.display = 'block';
+            }
+        });
+    }
+
+    // Fechar o modal quando o usuário clicar no X
+    document.querySelector('.close-button').addEventListener('click', function() {
+        document.getElementById('definicoesModal').style.display = 'none';
+    });
+
+    // Fechar o modal quando o usuário clicar fora dele
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('definicoesModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Cancelar as alterações
+    document.getElementById('cancelar-definicoes').addEventListener('click', function() {
+        document.getElementById('definicoesModal').style.display = 'none';
+    });
+
+    // Salvar as alterações
+    document.getElementById('salvar-definicoes').addEventListener('click', function() {
+        const nomeFilme = document.getElementById('modal-nome-filme').value;
+        const genero = document.getElementById('genero').value;
+
+        $.ajax({
+            url: '/api/genero/atualizar',
+            type: 'POST',
+            data: {
+                nomeFilme: nomeFilme,
+                genero: genero
+            },
+            success: function(response) {
+                if (response.sucesso) {
+                    alert('Gênero atualizado com sucesso!');
+                    document.getElementById('definicoesModal').style.display = 'none';
+                    // Recarregar a página para mostrar as alterações
+                    window.location.reload();
+                } else {
+                    alert('Erro ao atualizar gênero: ' + response.mensagem);
+                }
+            },
+            error: function(xhr) {
+                alert('Erro ao atualizar gênero. Tente novamente.');
+            }
+        });
+    });
+
+    // Função para limpar os filtros
+    function limparFiltros() {
+        window.location.href = '/selecionar-filme';
+    }
+</script>
+</body>
+</html>

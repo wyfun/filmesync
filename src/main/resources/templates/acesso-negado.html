@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Acesso Negado - FilmeSync</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        
+        .error-container {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 30px;
+            width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            margin-bottom: 25px;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        
+        .emoji {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .button {
+            display: inline-block;
+            background-color: #ffcc00;
+            color: #333;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .button:hover {
+            background-color: #e6b800;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="emoji">🚫</div>
+        <h1>Acesso Negado</h1>
+        <p>Você não tem permissão para acessar esta página. Apenas administradores podem selecionar filmes.</p>
+        <p>Entre em contato com um administrador se precisar de ajuda.</p>
+        <a href="/player" class="button">Voltar para o Player</a>
+    </div>
+</body>
+</html>

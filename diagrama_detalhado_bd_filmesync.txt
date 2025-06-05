@@ -1,0 +1,52 @@
++---------------------+
+|       Usuario       |
++---------------------+
+| id: Long (PK)       |
+| username: String    |
+| password: String    |
+| admin: boolean      |
++---------------------+
+          
+          
++---------------------+
+|    HistoricoFilme   |
++---------------------+
+| id: Long (PK)       |
+| caminhoFilme: String|
+| nomeFilme: String   |
+| dataVisualizacao:   |
+|   LocalDateTime     |
+| posterUrl: String   |
++---------------------+
+
+Descrição das Tabelas:
+
+1. Usuario
+   - id: Identificador único do usuário (chave primária, auto-incremento)
+   - username: Nome de usuário único para login
+   - password: Senha do usuário (armazenada em texto plano - poderia ser melhorado com hash)
+   - admin: Flag que indica se o usuário tem permissões de administrador
+
+2. HistoricoFilme
+   - id: Identificador único do registro de histórico (chave primária, auto-incremento)
+   - caminhoFilme: Caminho do arquivo de vídeo no sistema
+   - nomeFilme: Nome do filme extraído do caminho do arquivo
+   - dataVisualizacao: Data e hora em que o filme foi assistido
+   - posterUrl: URL da imagem do poster do filme obtida da API do IMDb
+
+Funcionalidades Relacionadas ao Banco de Dados:
+
+1. Autenticação de Usuários
+   - Verifica credenciais na tabela Usuario
+   - Diferencia entre usuários comuns e administradores
+
+2. Registro de Histórico
+   - Armazena informações sobre filmes assistidos na tabela HistoricoFilme
+   - Evita duplicações verificando se o filme já existe no histórico
+   - Atualiza a data de visualização se o filme for assistido novamente
+
+3. Exibição de Histórico
+   - Recupera e exibe os filmes assistidos em ordem cronológica
+   - Mostra posters, nomes e datas de visualização
+
+Observação: Atualmente não há relacionamento entre as tabelas. Uma melhoria futura seria adicionar uma chave estrangeira (usuario_id) na tabela HistoricoFilme para vincular cada registro de histórico ao usuário que assistiu ao filme.

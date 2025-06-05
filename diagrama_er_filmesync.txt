@@ -1,0 +1,43 @@
+// Diagrama ER Atual
+// -----------------
+
+[Usuario]
+*id: Long (PK)
+username: String (UNIQUE)
+password: String
+admin: boolean
+
+[HistoricoFilme]
+*id: Long (PK)
+caminhoFilme: String
+nomeFilme: String
+dataVisualizacao: LocalDateTime
+posterUrl: String
+
+// Não há relacionamentos no modelo atual
+
+
+// Diagrama ER Proposto (Melhoria Futura)
+// --------------------------------------
+
+[Usuario]
+*id: Long (PK)
+username: String (UNIQUE)
+password: String
+admin: boolean
+    ^
+    |
+    | 1
+    |
+    |
+    | *
+[HistoricoFilme]
+*id: Long (PK)
+caminhoFilme: String
+nomeFilme: String
+dataVisualizacao: LocalDateTime
+posterUrl: String
+usuario_id: Long (FK)
+
+// Relacionamento: Um usuário pode ter vários registros de histórico
+// Cada registro de histórico pertence a exatamente um usuário

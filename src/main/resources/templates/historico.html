@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico de Filmes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2b2b2b;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #ffcc00;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .historico-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .filme-card {
+            width: 200px;
+            background-color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filme-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .poster-container {
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .poster {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .filme-info {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filme-nome {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #ffcc00;
+        }
+
+        .filme-data {
+            font-size: 14px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+
+        .filme-genero {
+            font-size: 14px;
+            color: #ffcc00;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* Estilos para os controles de filtragem */
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .filtro-container {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .filtro-form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .filtro-grupo label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .filtro-grupo select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #444;
+            color: white;
+        }
+
+        .limpar-filtros {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-end;
+            margin-top: 24px;
+        }
+
+        .limpar-filtros:hover {
+            background-color: #5a6268;
+        }
+
+
+
+        .remover-btn {
+            display: inline-block;
+            margin-top: 10px;
+            color: #ff4444;
+            text-decoration: none;
+            font-size: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        .remover-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .limpar-btn {
+            background-color: #ff4444;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .limpar-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .sem-historico {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #aaa;
+        }
+
+        .nav-bar {
+            background-color: #333;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-left, .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #444;
+        }
+
+        .nav-link.active {
+            background-color: #ffcc00;
+            color: #333;
+        }
+
+        .player-link {
+            background-color: #2a6496;
+        }
+
+        .player-link:hover {
+            background-color: #1e496e;
+        }
+
+        .logged-user-display {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            background-color: #444;
+            padding: 5px 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .logged-as {
+            margin-right: 5px;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .username {
+            font-weight: bold;
+            margin-right: 8px;
+            color: #ffcc00;
+        }
+
+        .admin-badge {
+            background-color: #ffcc00;
+            color: #333;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .logout-link {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #ff4444;
+            padding: 5px 12px;
+            border-radius: 4px;
+            margin-left: 10px;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .logout-link:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+
+        /* Estilos para o modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #333;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 700px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            color: white;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #ffcc00;
+        }
+
+        #modal-titulo {
+            color: #ffcc00;
+            margin-top: 0;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        .modal-body {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .modal-info {
+            flex: 1;
+            padding-right: 20px;
+        }
+
+        .modal-poster {
+            flex: 0 0 200px;
+        }
+
+        .modal-poster img {
+            width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .filme-card {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .filme-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .user-icon {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-left">
+            <a href="/selecionar-filme" class="nav-link">Selecionar Filme</a>
+            <a href="/historico" class="nav-link active">Histórico</a>
+            <a href="/player" class="nav-link player-link">🎬 Ir para Player</a>
+            <div class="logged-user-display">
+                <span class="user-icon">👤</span>
+                <span class="logged-as">Logado como: </span>
+                <span class="username" th:text="${isLogado ? nomeUsuario : 'Visitante'}">username</span>
+                <span class="admin-badge" th:if="${isAdmin && nomeUsuario != 'admin'}">Admin</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="/logout" class="logout-link">🚪 Sair</a>
+        </div>
+    </div>
+
+    <div class="header-container">
+        <h1>Histórico de Filmes</h1>
+
+        <!-- Controles de filtragem e ordenação -->
+        <div class="filtro-container" th:if="${!historico.isEmpty()}">
+            <form id="filtroForm" action="/historico" method="get" class="filtro-form">
+                <div class="filtro-grupo">
+                    <label for="genero">Filtrar por Gênero:</label>
+                    <select id="genero" name="genero" onchange="this.form.submit()">
+                        <option value="">Todos os Gêneros</option>
+                        <option value="sem-genero" th:selected="${generoSelecionado == 'sem-genero'}">Sem Gênero</option>
+                        <option th:each="genero : ${generosDisponiveis}"
+                                th:value="${genero}"
+                                th:text="${genero}"
+                                th:selected="${genero == generoSelecionado}">Ação</option>
+                    </select>
+                </div>
+
+                <div class="filtro-grupo">
+                    <label for="ordenarPor">Ordenar por:</label>
+                    <select id="ordenarPor" name="ordenarPor" onchange="this.form.submit()">
+                        <option value="data" th:selected="${ordenarPor == 'data'}">Data (mais recente)</option>
+                        <option value="nome" th:selected="${ordenarPor == 'nome'}">Nome</option>
+                        <option value="genero" th:selected="${ordenarPor == 'genero'}">Gênero</option>
+                    </select>
+                </div>
+
+                <button type="button" class="limpar-filtros" onclick="limparFiltros()">Limpar Filtros</button>
+            </form>
+        </div>
+
+        <a th:if="${!historico.isEmpty()}" href="/historico/limpar" class="limpar-btn" onclick="return confirm('Tem certeza que deseja limpar todo o histórico?')">
+            Limpar Histórico
+        </a>
+    </div>
+
+    <div th:if="${historico.isEmpty()}" class="sem-historico">
+        Nenhum filme assistido ainda.
+    </div>
+
+    <div class="historico-container">
+        <div th:each="filme : ${historico}" class="filme-card" th:data-id="${filme.id}" onclick="mostrarDetalhes(this)">
+            <div class="poster-container">
+                <img th:src="${filme.posterUrl}" alt="Poster do filme" class="poster">
+            </div>
+            <div class="filme-info">
+                <div class="filme-nome" th:text="${filme.nomeFilme}">Nome do Filme</div>
+                <div class="filme-data">
+                    Visto em: <span th:text="${filme.dataVisualizacao.format(formatter)}">01/01/2023 12:00</span>
+                </div>
+                <div class="filme-genero" th:if="${filme.genero != null && !filme.genero.isEmpty()}">
+                    Gênero: <span th:text="${filme.genero}">Ação</span>
+                </div>
+                <a th:href="@{'/historico/remover/' + ${filme.id}}" class="remover-btn" title="Remover do histórico" onclick="event.stopPropagation()">
+                    🚫
+                </a>
+                <!-- Dados ocultos para o modal -->
+                <div class="filme-dados-ocultos" style="display: none;">
+                    <!-- Armazena a lista de usuários diretamente -->
+                    <div class="filme-usuarios" th:text="${filme.usuariosVisualizacao}">admin, rosty</div>
+                    <span class="filme-data-completa" th:text="${filme.dataVisualizacao.format(formatter)}">01/01/2023 12:00</span>
+                    <span class="filme-genero-valor" th:text="${filme.genero}">Ação</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div id="detalhesModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modal-titulo">Detalhes do Filme</h2>
+            <div class="modal-body">
+                <div class="modal-info">
+                    <p><strong>Nome do Filme:</strong> <span id="modal-nome"></span></p>
+                    <p><strong>Assistido por:</strong> <span id="modal-usuario"></span></p>
+                    <p><strong>Última visualização:</strong> <span id="modal-data"></span></p>
+                    <p id="modal-genero-container" style="display: none;"><strong>Gênero:</strong> <span id="modal-genero"></span></p>
+                </div>
+                <div class="modal-poster">
+                    <img id="modal-poster" src="" alt="Poster do filme">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para mostrar o modal com os detalhes do filme
+        function mostrarDetalhes(elemento) {
+            // Obter os dados do filme
+            const nomeFilme = elemento.querySelector('.filme-nome').textContent;
+            const posterUrl = elemento.querySelector('.poster').src;
+            const dataVisualizacao = elemento.querySelector('.filme-data-completa').textContent;
+
+            // Obter todos os usuários que assistiram ao filme
+            const usuariosTexto = elemento.querySelector('.filme-usuarios').textContent || 'Desconhecido';
+
+            // Obter o gênero do filme, se existir
+            const generoElemento = elemento.querySelector('.filme-genero-valor');
+            const generoTexto = generoElemento ? generoElemento.textContent : '';
+
+            // Preencher o modal com os dados
+            document.getElementById('modal-nome').textContent = nomeFilme;
+            document.getElementById('modal-usuario').textContent = usuariosTexto;
+            document.getElementById('modal-data').textContent = dataVisualizacao;
+            document.getElementById('modal-poster').src = posterUrl;
+
+            // Exibir o gênero se existir
+            const generoContainer = document.getElementById('modal-genero-container');
+            const generoSpan = document.getElementById('modal-genero');
+
+            if (generoTexto && generoTexto.trim() !== '') {
+                generoSpan.textContent = generoTexto;
+                generoContainer.style.display = 'block';
+            } else {
+                generoContainer.style.display = 'none';
+            }
+
+            // Mostrar o modal
+            const modal = document.getElementById('detalhesModal');
+            modal.style.display = 'block';
+        }
+
+        // Fechar o modal quando o usuário clicar no X
+        document.querySelector('.close-button').addEventListener('click', function() {
+            document.getElementById('detalhesModal').style.display = 'none';
+        });
+
+        // Fechar o modal quando o usuário clicar fora dele
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('detalhesModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        // Função para limpar os filtros
+    function limparFiltros() {
+        window.location.href = '/historico';
+    }
+</script>
+</body>
+</html>

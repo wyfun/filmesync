@@ -17,7 +17,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         // Páginas públicas que não requerem autenticação
         String path = request.getRequestURI();
 
-        // Permitir acesso a recursos estáticos e páginas públicas
+        // Permitir acesso a recursos estáticos e páginas públicas TESTE
         if (path.startsWith("/login") || path.startsWith("/registro") ||
             path.startsWith("/css") || path.startsWith("/js") ||
             path.startsWith("/images") || path.equals("/") ||

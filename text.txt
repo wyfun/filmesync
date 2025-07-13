@@ -1,2 +1,2 @@
 ﻿nada BLABLABLA teste 2
-editadi apartir do git
+editado a partir do git
